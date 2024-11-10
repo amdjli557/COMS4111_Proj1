@@ -175,7 +175,33 @@ def user():
     for result in cursor:
         username = result['name']
     cursor.close()
+    
+    confirmation_code = None
+    if request.method == 'POST':
+        confirmation_code = request.form.get('confirmation_code')
+        session['confirmation_code'] = int(confirmation_code)
+        return redirect('/booking')
+
     return render_template("user.html", uid=uid, username=username)
+
+
+@app.route('/booking', methods=['GET', 'POST'])
+def booking():
+    confirmation_code = session.get('confirmation_code')
+    cursor = g.conn.execute("SELECT * FROM User_Owns_Bookings WHERE confirmation_code = %s", (confirmation_code,))
+    checkin = None
+    checkout = None
+    guest_number = None
+    price = None
+    for result in cursor:
+        print(result)
+        checkin = result['check_in']
+        checkout = result['check_out']
+        guest_number = result['guest_number']
+        price = result['price']
+    cursor.close()
+    
+    return render_template("booking.html", confirmation_code=confirmation_code, checkin=checkin, checkout=checkout, guest_number=guest_number, price=price)
 
 if __name__ == "__main__":
   import click
