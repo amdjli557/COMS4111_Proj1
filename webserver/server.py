@@ -18,12 +18,12 @@ Read about it online.
 import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, request, render_template, g, redirect, Response
+from flask import Flask, session, request, render_template, g, redirect, Response
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
-
+app.secret_key = '4111'
 
 # XXX: The Database URI should be in the format of: 
 #
@@ -158,12 +158,24 @@ def another():
 #  g.conn.execute(text(cmd), name1 = name, name2 = name);
 #  return redirect('/')
 
-
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    abort(401)
-    this_is_never_executed()
+    uid = None
+    if request.method == 'POST':
+        uid = request.form.get('uid')
+        session['uid'] = int(uid)
+        return redirect('/user')
+    return render_template("login.html", uid=uid)
 
+@app.route('/user', methods=['GET', 'POST'])
+def user():
+    uid = session.get('uid')
+    cursor = g.conn.execute("SELECT name FROM Users WHERE user_id = %s", (uid,))
+    username = None
+    for result in cursor:
+        username = result['name']
+    cursor.close()
+    return render_template("user.html", uid=uid, username=username)
 
 if __name__ == "__main__":
   import click
