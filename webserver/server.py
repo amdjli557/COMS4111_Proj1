@@ -101,69 +101,29 @@ def teardown_request(exception):
 # see for routing: http://flask.pocoo.org/docs/0.10/quickstart/#routing
 # see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
 #
-@app.route('/')
+@app.route('/', methods = ["GET", "POST"])
 def index():
-  """
-  request is a special object that Flask provides to access web request information:
-
-  request.method:   "GET" or "POST"
-  request.form:     if the browser submitted a form, this contains the data in the form
-  request.args:     dictionary of URL arguments e.g., {a:1, b:2} for http://localhost?a=1&b=2
-
-  See its API: http://flask.pocoo.org/docs/0.10/api/#incoming-request-data
-  """
-
   # DEBUG: this is debugging code to see what request looks like
   print(request.args)
-
+  hname = None
+  names = []
 
   #
   # example of a database query
   #
-  hname = None  # Default value
-  names = []  
   if request.method == 'POST':
       hname = request.form.get('hname') 
 
         # Check if 'hname' exists
       if hname:  # Proceed only if the form has the 'hname' value
-          cursor = g.conn.execute("SELECT * FROM Hotels WHERE name = ?", (hname,))
+          hname_pattern = f"%{hname}%"
+            
+            # Use parameterized query to prevent SQL injection
+          cursor = g.conn.execute("SELECT * FROM Hotels WHERE name LIKE %s", (hname_pattern,))
           for result in cursor:
               names.append(result)  # can also be accessed using result[0]
           cursor.close()
 
-  #
-  # Flask uses Jinja templates, which is an extension to HTML where you can
-  # pass data to a template and dynamically generate HTML based on the data
-  # (you can think of it as simple PHP)
-  # documentation: https://realpython.com/blog/python/primer-on-jinja-templating/
-  #
-  # You can see an example template in templates/index.html
-  #
-  # context are the variables that are passed to the template.
-  # for example, "data" key in the context variable defined below will be 
-  # accessible as a variable in index.html:
-  #
-  #     # will print: [u'grace hopper', u'alan turing', u'ada lovelace']
-  #     <div>{{data}}</div>
-  #     
-  #     # creates a <div> tag for each element in data
-  #     # will print: 
-  #     #
-  #     #   <div>grace hopper</div>
-  #     #   <div>alan turing</div>
-  #     #   <div>ada lovelace</div>
-  #     #
-  #     {% for n in data %}
-  #     <div>{{n}}</div>
-  #     {% endfor %}
-  #
-
-
-  #
-  # render_template looks in the templates/ folder for files.
-  # for example, the below file reads template/index.html
-  #
   return render_template("index.html", names=names, hname=hname)
 
 #
@@ -181,13 +141,15 @@ def another():
 
 # Example of adding new data to the database
 
-@app.route('/search', methods=['POST'])
-def search():
-  name = request.form['hname']
-  print(name)
-  cmd = 'INSERT INTO test(name) VALUES (:name1), (:name2)';
-  g.conn.execute(text(cmd), name1 = name, name2 = name);
-  return redirect('/')
+#@app.route('/search', methods=['POST'])
+#def search():
+  
+#  if hname:  # Proceed only if the form has the 'hname' value
+#    cursor = g.conn.execute("SELECT * FROM Hotels WHERE name LIKE ?", (hname,))
+#    for result in cursor:
+#        names.append(result)  # can also be accessed using result[0]
+#    cursor.close()
+#  return redirect('/')
 #@app.route('/add', methods=['POST'])
 #def add():
 #  name = request.form['name']
