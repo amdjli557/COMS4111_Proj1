@@ -51,12 +51,12 @@ engine = create_engine(DATABASEURI)
 
 
 # Here we create a test table and insert some values in it
-engine.execute("""DROP TABLE IF EXISTS test;""")
-engine.execute("""CREATE TABLE IF NOT EXISTS test (
-  id serial,
-  name text
-);""")
-engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
+#engine.execute("""DROP TABLE IF EXISTS test;""")
+#engine.execute("""CREATE TABLE IF NOT EXISTS test (
+#  id serial,
+#  name text
+#);""")
+#engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
 
 
 
@@ -120,11 +120,17 @@ def index():
   #
   # example of a database query
   #
-  cursor = g.conn.execute("SELECT name FROM test")
-  names = []
-  for result in cursor:
-    names.append(result['name'])  # can also be accessed using result[0]
-  cursor.close()
+  hname = None  # Default value
+  names = []  
+  if request.method == 'POST':
+      hname = request.form.get('hname') 
+
+        # Check if 'hname' exists
+      if hname:  # Proceed only if the form has the 'hname' value
+          cursor = g.conn.execute("SELECT * FROM Hotels WHERE name = ?", (hname,))
+          for result in cursor:
+              names.append(result)  # can also be accessed using result[0]
+          cursor.close()
 
   #
   # Flask uses Jinja templates, which is an extension to HTML where you can
@@ -152,14 +158,13 @@ def index():
   #     <div>{{n}}</div>
   #     {% endfor %}
   #
-  context = dict(data = names)
 
 
   #
   # render_template looks in the templates/ folder for files.
   # for example, the below file reads template/index.html
   #
-  return render_template("index.html", **context)
+  return render_template("index.html", names=names, hname=hname)
 
 #
 # This is an example of a different path.  You can see it at
@@ -175,13 +180,21 @@ def another():
 
 
 # Example of adding new data to the database
-@app.route('/add', methods=['POST'])
-def add():
-  name = request.form['name']
+
+@app.route('/search', methods=['POST'])
+def search():
+  name = request.form['hname']
   print(name)
   cmd = 'INSERT INTO test(name) VALUES (:name1), (:name2)';
   g.conn.execute(text(cmd), name1 = name, name2 = name);
   return redirect('/')
+#@app.route('/add', methods=['POST'])
+#def add():
+#  name = request.form['name']
+#  print(name)
+#  cmd = 'INSERT INTO test(name) VALUES (:name1), (:name2)';
+#  g.conn.execute(text(cmd), name1 = name, name2 = name);
+#  return redirect('/')
 
 
 @app.route('/login')
@@ -213,6 +226,7 @@ if __name__ == "__main__":
 
     HOST, PORT = host, port
     print("running on %s:%d" % (HOST, PORT))
+    #app.run(host=HOST, port=PORT, debug=debug, threaded=threaded, ssl_context=('certificate.crt', 'private.key'))
     app.run(host=HOST, port=PORT, debug=debug, threaded=threaded)
 
 
