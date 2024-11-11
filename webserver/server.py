@@ -101,30 +101,42 @@ def teardown_request(exception):
 # see for routing: http://flask.pocoo.org/docs/0.10/quickstart/#routing
 # see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
 #
-@app.route('/', methods = ["GET", "POST"])
+@app.route('/', methods=["GET", "POST"])
 def index():
-  # DEBUG: this is debugging code to see what request looks like
-  print(request.args)
-  hname = None
-  names = []
+    hname = request.form.get('hname')
+    star_rating = request.form.get('star_rating')
+    available_start = request.form.get('available_start')
+    available_end = request.form.get('available_end')
+    names = []
 
-  #
-  # example of a database query
-  #
-  if request.method == 'POST':
-      hname = request.form.get('hname') 
+    # Base SQL query to find hotels without overlapping bookings on the specified dates
+    query = """
+        SELECT DISTINCT h.name
+        FROM Hotels h
+        LEFT JOIN User_Owns_Bookings b ON h.hotel_id = b.hotel_id
+           AND NOT (b.check_out < %s OR b.check_in > %s)
+        WHERE b.confirmation_code IS NULL
+    """
+    params = [available_start, available_end]
 
-        # Check if 'hname' exists
-      if hname:  # Proceed only if the form has the 'hname' value
-          hname_pattern = f"%{hname}%"
-            
-            # Use parameterized query to prevent SQL injection
-          cursor = g.conn.execute("SELECT * FROM Hotels WHERE name LIKE %s", (hname_pattern,))
-          for result in cursor:
-              names.append(result)  # can also be accessed using result[0]
-          cursor.close()
+    # Apply additional filters
+    if hname:
+        query += " AND h.name LIKE %s"
+        params.append(f"%{hname}%")
+    
+    if star_rating:
+        query += " AND h.star_rating = %s"
+        params.append(star_rating)
 
-  return render_template("index.html", names=names, hname=hname)
+    # Execute the query
+    print("Executing query with parameters:", params)
+    cursor = g.conn.execute(query, params)
+    names = [result[0] for result in cursor]
+    cursor.close()
+
+    # Render the result in the template
+    return render_template("index.html", names=names, hname=hname, star_rating=star_rating, available_start=available_start, available_end=available_end)
+
 
 #
 # This is an example of a different path.  You can see it at
@@ -187,21 +199,42 @@ def user():
 
 @app.route('/booking', methods=['GET', 'POST'])
 def booking():
-    confirmation_code = session.get('confirmation_code')
-    cursor = g.conn.execute("SELECT * FROM User_Owns_Bookings WHERE confirmation_code = %s", (confirmation_code,))
-    checkin = None
-    checkout = None
-    guest_number = None
-    price = None
-    for result in cursor:
-        print(result)
-        checkin = result['check_in']
-        checkout = result['check_out']
-        guest_number = result['guest_number']
-        price = result['price']
-    cursor.close()
-    
-    return render_template("booking.html", confirmation_code=confirmation_code, checkin=checkin, checkout=checkout, guest_number=guest_number, price=price)
+    confirmation_code = request.form.get('confirmation_code')
+    booking_details = None
+
+    print("Received confirmation code:", confirmation_code)  # Debug statement
+
+    if confirmation_code:
+        try:
+            confirmation_code = int(confirmation_code)
+        except ValueError:
+            print("Invalid confirmation code format")  # Debug statement
+            return render_template("booking.html", booking_details=None, error="Invalid confirmation code format")
+
+        # Query to get booking details along with hotel name
+        query = """
+            SELECT ub.check_in, ub.check_out, ub.guest_number, ub.price, ub.past, ub.upcoming, h.name AS hotel_name
+            FROM User_Owns_Bookings ub
+            JOIN Hotels h ON ub.hotel_id = h.hotel_id
+            WHERE ub.confirmation_code = %s
+        """
+        
+        print("Executing query:", query, "with parameter:", confirmation_code)  # Debug statement
+        cursor = g.conn.execute(query, (confirmation_code,))
+        result = cursor.fetchone()
+        
+        print("Query result:", result)  # Debug statement
+        if result:
+            booking_details = {
+                'check_in': result['check_in'],
+                'check_out': result['check_out'],
+                'guest_number': result['guest_number'],
+                'price': result['price'],
+                'hotel_name': result['hotel_name']
+            }
+        cursor.close()
+
+    return render_template("booking.html", booking_details=booking_details)
 
 if __name__ == "__main__":
   import click

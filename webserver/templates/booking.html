@@ -6,22 +6,17 @@
     <title>Booking Details</title>
 </head>
 <body>
-    <div class="container">
-        <h1>Booking Details</h1>
+    <h1>Booking Details</h1>
 
-        {% if checkin and checkout %}
-            <div class="details">
-                <p><strong>Confirmation Code:</strong> {{ confirmation_code }}</p>
-                <p><strong>Check-in Date:</strong> {{ checkin }}</p>
-                <p><strong>Check-out Date:</strong> {{ checkout }}</p>
-                <p><strong>Number of Guests:</strong> {{ guest_number }}</p>
-                <p><strong>Price:</strong> ${{ price }}</p>
-            </div>
-        {% else %}
-            <div class="error-message">
-                <p>No booking found for the provided confirmation code.</p>
-            </div>
-        {% endif %}
-    </div>
+    {% if booking_details %}
+        <p><strong>Hotel Name:</strong> {{ booking_details.hotel_name }}</p>
+        <p><strong>Confirmation Code:</strong> {{ confirmation_code }}</p>
+        <p><strong>Check-in Date:</strong> {{ booking_details.check_in }}</p>
+        <p><strong>Check-out Date:</strong> {{ booking_details.check_out }}</p>
+        <p><strong>Number of Guests:</strong> {{ booking_details.guest_number }}</p>
+        <p><strong>Price:</strong> ${{ booking_details.price }}</p>
+    {% else %}
+        <p>No booking found for the provided confirmation code.</p>
+    {% endif %}
 </body>
 </html>
