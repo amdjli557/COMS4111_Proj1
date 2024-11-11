@@ -105,25 +105,19 @@ def teardown_request(exception):
 def index():
     hname = request.form.get('hname')
     star_rating = request.form.get('star_rating')
-    available_start = request.form.get('available_start')
-    available_end = request.form.get('available_end')
-    names = []
 
     # Base SQL query to find hotels without overlapping bookings on the specified dates
     query = """
-        SELECT DISTINCT h.name
+        SELECT h.hotel_id, h.name
         FROM Hotels h
-        LEFT JOIN User_Owns_Bookings b ON h.hotel_id = b.hotel_id
-           AND NOT (b.check_out < %s OR b.check_in > %s)
-        WHERE b.confirmation_code IS NULL
+        WHERE true
     """
-    params = [available_start, available_end]
-
+    params = []
     # Apply additional filters
     if hname:
         query += " AND h.name LIKE %s"
         params.append(f"%{hname}%")
-    
+
     if star_rating:
         query += " AND h.star_rating = %s"
         params.append(star_rating)
@@ -131,12 +125,39 @@ def index():
     # Execute the query
     print("Executing query with parameters:", params)
     cursor = g.conn.execute(query, params)
-    names = [result[0] for result in cursor]
+    hotels = [{"hotel_id": result[0], "name": result[1]} for result in cursor]
     cursor.close()
 
     # Render the result in the template
-    return render_template("index.html", names=names, hname=hname, star_rating=star_rating, available_start=available_start, available_end=available_end)
+    return render_template("index.html", hotels=hotels, hname=hname, star_rating=star_rating)
 
+@app.route('/hotel/<int:hotel_id>', methods=['GET'])
+def hotel_details(hotel_id):
+    # Fetch hotel details from the database
+    cursor = g.conn.execute("""
+        SELECT name, address, email FROM Hotels WHERE hotel_id = %s;
+    """, (hotel_id,))
+    hotel = cursor.fetchone()
+
+    # Fetch reviews for the hotel
+    cursor = g.conn.execute("""
+        SELECT uwr.content, uwr.rating, uwr.likes, uwr.time 
+        FROM Hotel_Has_Reviews AS hhr, User_Writes_Reviews AS uwr 
+        WHERE hhr.hotel_id = %s AND hhr.review_id = uwr.review_id;
+    """, (hotel_id,))
+    reviews = cursor.fetchall()
+
+    # Fetch rooms for the hotel
+    cursor = g.conn.execute("""
+        SELECT * 
+        FROM Hotel_Contains_Rooms AS hcr 
+        WHERE hotel_id = %s;
+    """, (hotel_id,))
+    rooms = cursor.fetchall()
+
+    cursor.close()
+
+    return render_template('hotel_details.html', hotel=hotel, reviews=reviews, rooms=rooms)
 
 #
 # This is an example of a different path.  You can see it at
@@ -201,6 +222,7 @@ def user():
 def booking():
     confirmation_code = request.form.get('confirmation_code')
     booking_details = None
+    user_id = session.get("uid");
 
     print("Received confirmation code:", confirmation_code)  # Debug statement
 
@@ -213,24 +235,24 @@ def booking():
 
         # Query to get booking details along with hotel name
         query = """
-            SELECT ub.check_in, ub.check_out, ub.guest_number, ub.price, ub.past, ub.upcoming, h.name AS hotel_name
+            SELECT ub.confirmation_code, ub.check_in, ub.check_out, ub.guest_number, ub.price, ub.past, ub.upcoming, h.name AS hotel_name
             FROM User_Owns_Bookings ub
             JOIN Hotels h ON ub.hotel_id = h.hotel_id
             WHERE ub.confirmation_code = %s
+            AND ub.user_id = %s
         """
         
-        print("Executing query:", query, "with parameter:", confirmation_code)  # Debug statement
-        cursor = g.conn.execute(query, (confirmation_code,))
+        cursor = g.conn.execute(query, (confirmation_code, user_id))
         result = cursor.fetchone()
         
-        print("Query result:", result)  # Debug statement
         if result:
             booking_details = {
                 'check_in': result['check_in'],
                 'check_out': result['check_out'],
                 'guest_number': result['guest_number'],
                 'price': result['price'],
-                'hotel_name': result['hotel_name']
+                'hotel_name': result['hotel_name'],
+                'confirmation_code': result['confirmation_code']
             }
         cursor.close()
 

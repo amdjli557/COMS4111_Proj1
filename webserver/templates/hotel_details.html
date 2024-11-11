@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ hotel['name'] }} - Details</title>
+</head>
+<body>
+    <h1>{{ hotel['name'] }}</h1>
+    <p>{{ hotel['address'] }}</p>
+    <p>{{ hotel['email'] }}</p>
+    <h2>Rooms</h2>
+    {% if rooms %}
+        <ul>
+        {% for room in rooms %}
+            <li>
+                <strong>Room Type:</strong> {{ room['room_type'] }} <br>
+                <strong>Availability:</strong> {{ room['availability'] }} <br>
+                <strong>Smoking:</strong> {{ room['smoking'] }} <br>
+                <strong>Breakfast:</strong> {{ room['breakfast'] }} <br>
+                <strong>Parking:</strong> {{ room['parking'] }} <br>
+                <strong>Features:</strong> {{ room['features'] }} <br>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No rooms available at this time.</p>
+    {% endif %}
+
+    <h2>Reviews</h2>
+    {% if reviews %}
+        <ul>
+        {% for review in reviews %}
+            <li>
+                <strong>Rating:</strong> {{ review['rating'] }} / 10 <br>
+                <strong>Content:</strong> {{ review['content'] }} <br>
+                <strong>Submitted on:</strong> {{ review['time'] }}
+                <strong>Likes:</strong> {{ review['likes'] }}
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No reviews yet. Be the first to write a review!</p>
+    {% endif %}
+    
+    <a href="{{ url_for('index') }}">Back to Hotel Search</a>
+</body>
+</html>
+

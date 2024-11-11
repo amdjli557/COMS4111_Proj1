@@ -10,7 +10,7 @@
 
     {% if booking_details %}
         <p><strong>Hotel Name:</strong> {{ booking_details.hotel_name }}</p>
-        <p><strong>Confirmation Code:</strong> {{ confirmation_code }}</p>
+        <p><strong>Confirmation Code:</strong> {{ booking_details.confirmation_code }}</p>
         <p><strong>Check-in Date:</strong> {{ booking_details.check_in }}</p>
         <p><strong>Check-out Date:</strong> {{ booking_details.check_out }}</p>
         <p><strong>Number of Guests:</strong> {{ booking_details.guest_number }}</p>

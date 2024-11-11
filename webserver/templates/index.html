@@ -1,44 +1,36 @@
 <!DOCTYPE html>
-<html>
-  <style>
-    body {
-      font-size: 15pt;
-      font-family: Arial, sans-serif;
-    }
-  </style>
-
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Search</title>
+</head>
 <body>
-  <h1>Booking4111</h1>
-
+    <h1>Hotel Search Results</h1>
   <!-- Login Link -->
   <p><a href="/login">Login</a></p>
 
-  <!-- Search Form -->
-  <form method="POST" action="/">
-    <p>Search Hotel Name: <input type="text" name="hname" value="{{ hname }}"></p>
-    <p>Star Rating: 
-      <select name="star_rating">
-        <option value="">Any</option>
-        <option value="1" {% if star_rating == "1" %}selected{% endif %}>1 Star</option>
-        <option value="2" {% if star_rating == "2" %}selected{% endif %}>2 Stars</option>
-        <option value="3" {% if star_rating == "3" %}selected{% endif %}>3 Stars</option>
-        <option value="4" {% if star_rating == "4" %}selected{% endif %}>4 Stars</option>
-        <option value="5" {% if star_rating == "5" %}selected{% endif %}>5 Stars</option>
-      </select>
-    </p>
-    <p>Available Date: <input type="date" name="available_date" value="{{ available_date }}"></p>
-    <p><input type="submit" value="Search"></p>
-  </form>
+    <form method="POST">
+        <label for="hname">Hotel Name:</label>
+        <input type="text" name="hname" value="{{ hname }}" placeholder="Enter hotel name"><br><br>
 
-  <!-- Search Results -->
-  <div>
-    {% if names %}
-      {% for n in names %}
-        <div>{{ n }}</div>
-      {% endfor %}
+        <label for="star_rating">Star Rating:</label>
+        <input type="number" name="star_rating" value="{{ star_rating }}" placeholder="Star rating"><br><br>
+
+        <button type="submit">Search</button>
+    </form>
+
+    <h2>Search Results</h2>
+    {% if hotels %}
+        <ul>
+        {% for hotel in hotels %}
+            <li>
+                <a href="{{ url_for('hotel_details', hotel_id=hotel['hotel_id']) }}">{{ hotel['name'] }}</a>
+            </li>
+        {% endfor %}
+        </ul>
     {% else %}
-      <div>No hotels available for the selected criteria.</div>
+        <p>No hotels found based on your search criteria.</p>
     {% endif %}
-  </div>
 </body>
 </html>
