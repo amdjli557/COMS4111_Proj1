@@ -4,28 +4,93 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hotel Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .search-form {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .hotel-list {
+            list-style: none;
+            padding: 0;
+        }
+        .hotel-list li {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .hotel-list a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .hotel-list a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <h1>Hotel Search Results</h1>
-  <!-- Login Link -->
-  <p><a href="/login">Login</a></p>
+    <h1>Hotel Search</h1>
+    
+    <!-- Login Link -->
+    <p><a href="/login">Login</a></p>
 
-    <form method="POST">
-        <label for="hname">Hotel Name:</label>
-        <input type="text" name="hname" value="{{ hname }}" placeholder="Enter hotel name"><br><br>
+    <div class="search-form">
+        <form method="POST">
+            <div class="form-group">
+                <label for="hname">Hotel Name:</label>
+                <input type="text" id="hname" name="hname" value="{{ hname or '' }}" placeholder="Enter hotel name">
+            </div>
 
-        <label for="star_rating">Star Rating:</label>
-        <input type="number" name="star_rating" value="{{ star_rating }}" placeholder="Star rating"><br><br>
+            <div class="form-group">
+                <label for="star_rating">Star Rating (1-5):</label>
+                <input type="number" id="star_rating" name="star_rating" 
+                       value="{{ star_rating or '' }}" 
+                       min="1" max="5" 
+                       placeholder="Enter star rating">
+            </div>
 
-        <button type="submit">Search</button>
-    </form>
+            <button type="submit">Search</button>
+        </form>
+    </div>
 
     <h2>Search Results</h2>
     {% if hotels %}
-        <ul>
+        <ul class="hotel-list">
         {% for hotel in hotels %}
             <li>
-                <a href="{{ url_for('hotel_details', hotel_id=hotel['hotel_id']) }}">{{ hotel['name'] }}</a>
+                <a href="{{ url_for('hotel_details', hotel_id=hotel['hotel_id']) }}">
+                    {{ hotel['name'] }}
+                </a>
             </li>
         {% endfor %}
         </ul>

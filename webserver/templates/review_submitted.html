@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Submitted</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .confirmation-card {
+            border: 1px solid #ddd;
+            padding: 40px;
+            border-radius: 5px;
+            margin: 40px 0;
+            background-color: #f8f9fa;
+        }
+        .success-message {
+            color: #28a745;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .check-icon {
+            font-size: 48px;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="confirmation-card">
+        <div class="check-icon">✓</div>
+        <div class="success-message">Review Successfully Submitted!</div>
+        <p>Thank you for sharing your experience.</p>
+        <a href="{{ url_for('user') }}" class="button">Back to Profile</a>
+    </div>
+</body>
+</html>

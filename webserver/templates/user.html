@@ -1,18 +1,124 @@
+<!DOCTYPE html>
 <html>
   <style>
     body {
       font-size: 15pt;
       font-family: arial;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .nav-links {
+      margin: 20px 0;
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: #0066cc;
+      padding: 8px 16px;
+      border-radius: 4px;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+    .button-new-booking {
+      background-color: #ffffff;
+      color: #007bff !important;
+      border: 2px solid #007bff;
+      padding: 10px 20px !important;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+    }
+    .button-new-booking:hover {
+      background-color: #007bff;
+      color: white !important;
+      text-decoration: none !important;
+    }
+    .bookings-section {
+      margin-top: 30px;
+    }
+    .booking-card {
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 5px;
+      background-color: #f8f9fa;
+      transition: transform 0.2s ease;
+    }
+    .booking-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .booking-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .booking-status {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-size: 0.9em;
+      margin-left: 10px;
+    }
+    .status-upcoming {
+      background-color: #28a745;
+      color: white;
+    }
+    .status-past {
+      background-color: #6c757d;
+      color: white;
+    }
+    .view-details {
+      color: #007bff;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 10px;
+    }
+    .view-details:hover {
+      text-decoration: underline;
     }
   </style>
 
 <body>
   <h1>Welcome, {{ username }}!</h1>
 
-  <!-- Modify action to point to /booking directly -->
-  <form method="POST" action="/booking"> 
-    <p>Search Booking Via Confirmation Code: <input type="number" name="confirmation_code" required></p> 
-    <p><input type="submit" value="Search"></p>
-  </form>
+  <div class="nav-links">
+    <a href="/saved_rooms">Your Saved Rooms</a>
+    <a href="/user_reviews">Your Reviews</a>
+    <a href="/" class="button-new-booking">Make New Booking</a>
+  </div>
+
+  <div class="bookings-section">
+    <h2>Your Bookings</h2>
+    {% if bookings %}
+      {% for booking in bookings %}
+        <div class="booking-card">
+          <div class="booking-details">
+            <div>
+              <strong>{{ booking.hotel_name }}</strong>
+              {% if booking.upcoming %}
+                <span class="booking-status status-upcoming">Upcoming</span>
+              {% elif booking.past %}
+                <span class="booking-status status-past">Past</span>
+              {% endif %}
+            </div>
+            <div>Check-in: {{ booking.check_in.strftime('%Y-%m-%d') }}</div>
+            <div>Check-out: {{ booking.check_out.strftime('%Y-%m-%d') }}</div>
+            <div>Guests: {{ booking.guest_number }}</div>
+            <div>Price: ${{ "%.2f"|format(booking.price) }}</div>
+          </div>
+          <a href="{{ url_for('booking', confirmation_code=booking.confirmation_code) }}" class="view-details">
+            View Details →
+          </a>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>You don't have any bookings yet.</p>
+    {% endif %}
+  </div>
 </body>
 </html>

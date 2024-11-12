@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make a Booking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .booking-form {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Book Your Stay at {{ hotel.name }}</h1>
+
+    <form class="booking-form" method="POST">
+        <div class="form-group">
+            <label for="check_in">Check-in Date:</label>
+            <input type="date" id="check_in" name="check_in" required>
+        </div>
+
+        <div class="form-group">
+            <label for="check_out">Check-out Date:</label>
+            <input type="date" id="check_out" name="check_out" required>
+        </div>
+
+        <div class="form-group">
+            <label for="guest_number">Number of Guests:</label>
+            <input type="number" id="guest_number" name="guest_number" min="1" required>
+        </div>
+
+        <div class="form-group">
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="price" min="0" step="0.01" required>
+        </div>
+
+        <button type="submit">Confirm Booking</button>
+    </form>
+</body>
+</html>

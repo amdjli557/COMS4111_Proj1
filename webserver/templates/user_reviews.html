@@ -1,0 +1,50 @@
+<html>
+  <style>
+    body {
+      font-size: 15pt;
+      font-family: arial;
+    }
+    .review-card {
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 5px;
+    }
+    .rating {
+      color: #f39c12;
+      font-weight: bold;
+    }
+    .likes {
+      color: #e74c3c;
+    }
+    .back-link {
+      margin: 20px 0;
+    }
+    .back-link a {
+      text-decoration: none;
+      color: #0066cc;
+    }
+  </style>
+
+<body>
+  <h1>Your Reviews</h1>
+
+  {% if reviews %}
+    {% for review in reviews %}
+      <div class="review-card">
+        <h2>{{ review.hotel_name }}</h2>
+        <p class="rating">Rating: {{ review.rating }}/10</p>
+        <p>{{ review.content }}</p>
+        <p class="likes">❤ {{ review.likes }} likes</p>
+        <p>Posted on: {{ review.time }}</p>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>You haven't written any reviews yet.</p>
+  {% endif %}
+
+  <div class="back-link">
+    <a href="/user">← Back to Profile</a>
+  </div>
+</body>
+</html>

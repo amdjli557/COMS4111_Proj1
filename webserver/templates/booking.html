@@ -4,19 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Booking Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .booking-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .back-link {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
     <h1>Booking Details</h1>
 
     {% if booking_details %}
-        <p><strong>Hotel Name:</strong> {{ booking_details.hotel_name }}</p>
-        <p><strong>Confirmation Code:</strong> {{ booking_details.confirmation_code }}</p>
-        <p><strong>Check-in Date:</strong> {{ booking_details.check_in }}</p>
-        <p><strong>Check-out Date:</strong> {{ booking_details.check_out }}</p>
-        <p><strong>Number of Guests:</strong> {{ booking_details.guest_number }}</p>
-        <p><strong>Price:</strong> ${{ booking_details.price }}</p>
+        <div class="booking-card">
+            <p><strong>Hotel Name:</strong> {{ booking_details.hotel_name }}</p>
+            <p><strong>Confirmation Code:</strong> {{ booking_details.confirmation_code }}</p>
+            <p><strong>Check-in Date:</strong> {{ booking_details.check_in }}</p>
+            <p><strong>Check-out Date:</strong> {{ booking_details.check_out }}</p>
+            <p><strong>Number of Guests:</strong> {{ booking_details.guest_number }}</p>
+            <p><strong>Price:</strong> ${{ booking_details.price }}</p>
+            
+            <a href="{{ url_for('add_review', confirmation_code=booking_details.confirmation_code) }}" class="button">
+                Add Review
+            </a>
+        </div>
     {% else %}
         <p>No booking found for the provided confirmation code.</p>
     {% endif %}
+
+    <div class="back-link">
+        <a href="{{ url_for('user') }}">← Back to Profile</a>
+    </div>
 </body>
 </html>

@@ -1,0 +1,41 @@
+<html>
+  <style>
+    body {
+      font-size: 15pt;
+      font-family: arial;
+    }
+    .room-card {
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 5px;
+    }
+    .back-link {
+      margin: 20px 0;
+    }
+    .back-link a {
+      text-decoration: none;
+      color: #0066cc;
+    }
+  </style>
+
+<body>
+  <h1>Your Saved Rooms</h1>
+
+  {% if saved_rooms %}
+    {% for room in saved_rooms %}
+      <div class="room-card">
+        <h2>{{ room.hotel_name }}</h2>
+        <p><strong>Room Type:</strong> {{ room.room_type }}</p>
+        <p><strong>Features:</strong> {{ room.features }}</p>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>You haven't saved any rooms yet.</p>
+  {% endif %}
+
+  <div class="back-link">
+    <a href="/user">← Back to Profile</a>
+  </div>
+</body>
+</html>

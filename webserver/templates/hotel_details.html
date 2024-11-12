@@ -4,46 +4,100 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ hotel['name'] }} - Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .hotel-info {
+            margin-bottom: 20px;
+        }
+        .booking-section {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .rooms-section, .reviews-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
-    <h1>{{ hotel['name'] }}</h1>
-    <p>{{ hotel['address'] }}</p>
-    <p>{{ hotel['email'] }}</p>
-    <h2>Rooms</h2>
-    {% if rooms %}
-        <ul>
-        {% for room in rooms %}
-            <li>
-                <strong>Room Type:</strong> {{ room['room_type'] }} <br>
-                <strong>Availability:</strong> {{ room['availability'] }} <br>
-                <strong>Smoking:</strong> {{ room['smoking'] }} <br>
-                <strong>Breakfast:</strong> {{ room['breakfast'] }} <br>
-                <strong>Parking:</strong> {{ room['parking'] }} <br>
-                <strong>Features:</strong> {{ room['features'] }} <br>
-            </li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>No rooms available at this time.</p>
-    {% endif %}
+    <div class="hotel-info">
+        <h1>{{ hotel['name'] }}</h1>
+        <p>{{ hotel['address'] }}</p>
+        <p>{{ hotel['email'] }}</p>
+    </div>
 
-    <h2>Reviews</h2>
-    {% if reviews %}
-        <ul>
-        {% for review in reviews %}
-            <li>
-                <strong>Rating:</strong> {{ review['rating'] }} / 10 <br>
-                <strong>Content:</strong> {{ review['content'] }} <br>
-                <strong>Submitted on:</strong> {{ review['time'] }}
-                <strong>Likes:</strong> {{ review['likes'] }}
-            </li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>No reviews yet. Be the first to write a review!</p>
-    {% endif %}
+    <div class="booking-section">
+        {% if user_id %}
+            <a href="{{ url_for('make_booking', hotel_id=hotel['hotel_id']) }}" class="button">
+                Book Now
+            </a>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="button">
+                Login to Book
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="rooms-section">
+        <h2>Rooms</h2>
+        {% if rooms %}
+            <ul>
+            {% for room in rooms %}
+                <li>
+                    <strong>Room Type:</strong> {{ room['room_type'] }} <br>
+                    <strong>Availability:</strong> {{ room['availability'] }} <br>
+                    <strong>Smoking:</strong> {{ room['smoking'] }} <br>
+                    <strong>Breakfast:</strong> {{ room['breakfast'] }} <br>
+                    <strong>Parking:</strong> {{ room['parking'] }} <br>
+                    <strong>Features:</strong> {{ room['features'] }} <br>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No rooms available at this time.</p>
+        {% endif %}
+    </div>
+
+    <div class="reviews-section">
+        <h2>Reviews</h2>
+        {% if reviews %}
+            <ul>
+            {% for review in reviews %}
+                <li>
+                    <strong>Rating:</strong> {{ review['rating'] }} / 10 <br>
+                    <strong>Content:</strong> {{ review['content'] }} <br>
+                    <strong>Submitted on:</strong> {{ review['time'] }}
+                    <strong>Likes:</strong> {{ review['likes'] }}
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No reviews yet. Be the first to write a review!</p>
+        {% endif %}
+    </div>
     
-    <a href="{{ url_for('index') }}">Back to Hotel Search</a>
+    <a href="{{ url_for('index') }}" class="button">Back to Hotel Search</a>
 </body>
 </html>
-

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmed</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .confirmation-card {
+            border: 1px solid #ddd;
+            padding: 40px;
+            border-radius: 5px;
+            margin: 40px 0;
+            background-color: #f8f9fa;
+        }
+        .success-message {
+            color: #28a745;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .booking-details {
+            text-align: left;
+            margin: 20px 0;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="confirmation-card">
+        <div class="success-message">Booking Confirmed!</div>
+        
+        <div class="booking-details">
+            <h2>Booking Details</h2>
+            <p><strong>Hotel:</strong> {{ booking.hotel_name }}</p>
+            <p><strong>Confirmation Code:</strong> {{ booking.confirmation_code }}</p>
+            <p><strong>Check-in Date:</strong> {{ booking.check_in }}</p>
+            <p><strong>Check-out Date:</strong> {{ booking.check_out }}</p>
+            <p><strong>Number of Guests:</strong> {{ booking.guest_number }}</p>
+            <p><strong>Total Price:</strong> ${{ "%.2f"|format(booking.price) }}</p>
+        </div>
+
+        <a href="{{ url_for('user') }}" class="button">Back to Profile</a>
+    </div>
+</body>
+</html>
