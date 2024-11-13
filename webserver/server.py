@@ -382,6 +382,23 @@ def add_review(confirmation_code):
 def review_submitted():
     return render_template('review_submitted.html')
 
+@app.route('/make_saving/<int:hotel_id>/<int:room_id>', methods=['GET', 'POST'])
+def make_saving(hotel_id, room_id):
+    uid = session.get('uid')
+    if not uid:
+        return redirect('/login')
+            # Get the next save code
+        cursor = g.conn.execute("SELECT MAX(saved_id) as max_code FROM User_Saves_Rooms")
+        result = cursor.fetchone()
+        new_saved_id = (result[0] or 0) + 1
+
+        g.conn.execute("""
+                INSERT INTO User_Saves_Rooms 
+                (new_saved_id, user_id, room_id)
+                VALUES (%s, %s, %s)
+            """, (new_saved_id, uid, room_id))
+
+    return render_template('make_saving.html', hotel_id=hotel_id, room_id=room_id)
 @app.route('/make_booking/<int:hotel_id>/<int:room_id>', methods=['GET', 'POST'])
 def make_booking(hotel_id, room_id):
     uid = session.get('uid')

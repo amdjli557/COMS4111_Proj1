@@ -74,6 +74,17 @@
         			{% endif %}
     			</div>
 		    {% endif %}
+                <div class="saving-section">
+                        {% if user_id %}
+                                <a href="{{ url_for('make_saving', hotel_id=hotel['hotel_id'], room_id=room['room_id']) }}" class="button">
+                                        Save
+                                </a>
+                        {% else %}
+                                <a href="{{ url_for('login') }}" class="button">
+                                        Login to Save
+                                </a>
+			{% endif %}
+                    </div>
                 </li>
             {% endfor %}
             </ul>
