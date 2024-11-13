@@ -48,18 +48,6 @@
         <p>{{ hotel['email'] }}</p>
     </div>
 
-    <div class="booking-section">
-        {% if user_id %}
-            <a href="{{ url_for('make_booking', hotel_id=hotel['hotel_id']) }}" class="button">
-                Book Now
-            </a>
-        {% else %}
-            <a href="{{ url_for('login') }}" class="button">
-                Login to Book
-            </a>
-        {% endif %}
-    </div>
-
     <div class="rooms-section">
         <h2>Rooms</h2>
         {% if rooms %}
@@ -72,6 +60,20 @@
                     <strong>Breakfast:</strong> {{ room['breakfast'] }} <br>
                     <strong>Parking:</strong> {{ room['parking'] }} <br>
                     <strong>Features:</strong> {{ room['features'] }} <br>
+		    {% if room['availability']%}
+		        
+		    	<div class="booking-section">
+        			{% if user_id %}
+            				<a href="{{ url_for('make_booking', hotel_id=hotel['hotel_id'], room_id=room['room_id']) }}" class="button">
+                				Book Now
+            				</a>
+        			{% else %}
+            				<a href="{{ url_for('login') }}" class="button">
+                				Login to Book
+            				</a>
+        			{% endif %}
+    			</div>
+		    {% endif %}
                 </li>
             {% endfor %}
             </ul>

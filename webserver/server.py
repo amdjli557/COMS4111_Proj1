@@ -107,26 +107,26 @@ def index():
     hname = request.form.get('hname')
     star_rating = request.form.get('star_rating')
     user_id = session.get('uid')  # Get user_id if logged in
-
-    query = "SELECT hotel_id, name FROM Hotels WHERE 1=1"
-    params = []
-
-    if hname and hname.strip():
-        query += " AND LOWER(name) LIKE LOWER(%s)"
-        params.append(f"%{hname}%")
-
-    if star_rating and star_rating.strip():
-        query += " AND star_rating = %s"
-        params.append(int(star_rating))
-
-    cursor = g.conn.execute(query, params)
     hotels = []
-    for result in cursor:
-        hotels.append({
-            "hotel_id": result[0],
-            "name": result[1]
-        })
-    cursor.close()
+    if request.method == 'POST':
+        query = "SELECT hotel_id, name FROM Hotels WHERE 1=1"
+        params = []
+
+        if hname and hname.strip():
+            query += " AND LOWER(name) LIKE LOWER(%s)"
+            params.append(f"%{hname}%")
+
+        if star_rating and star_rating.strip():
+            query += " AND star_rating = %s"
+            params.append(int(star_rating))
+
+        cursor = g.conn.execute(query, params)
+        for result in cursor:
+            hotels.append({
+                "hotel_id": result[0],
+                "name": result[1]
+            })
+        cursor.close()
 
     return render_template("index.html", 
                          hotels=hotels, 
@@ -171,37 +171,6 @@ def hotel_details(hotel_id):
                          rooms=rooms,
                          user_id=user_id) 
 
-#
-# This is an example of a different path.  You can see it at
-# 
-#     localhost:8111/another
-#
-# notice that the functio name is another() rather than index()
-# the functions for each app.route needs to have different names
-#
-@app.route('/another')
-def another():
-  return render_template("anotherfile.html")
-
-
-# Example of adding new data to the database
-
-#@app.route('/search', methods=['POST'])
-#def search():
-  
-#  if hname:  # Proceed only if the form has the 'hname' value
-#    cursor = g.conn.execute("SELECT * FROM Hotels WHERE name LIKE ?", (hname,))
-#    for result in cursor:
-#        names.append(result)  # can also be accessed using result[0]
-#    cursor.close()
-#  return redirect('/')
-#@app.route('/add', methods=['POST'])
-#def add():
-#  name = request.form['name']
-#  print(name)
-#  cmd = 'INSERT INTO test(name) VALUES (:name1), (:name2)';
-#  g.conn.execute(text(cmd), name1 = name, name2 = name);
-#  return redirect('/')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -413,12 +382,11 @@ def add_review(confirmation_code):
 def review_submitted():
     return render_template('review_submitted.html')
 
-@app.route('/make_booking/<int:hotel_id>', methods=['GET', 'POST'])
-def make_booking(hotel_id):
+@app.route('/make_booking/<int:hotel_id>/<int:room_id>', methods=['GET', 'POST'])
+def make_booking(hotel_id, room_id):
     uid = session.get('uid')
     if not uid:
         return redirect('/login')
-
     if request.method == 'POST':
         try:
             check_in = datetime.strptime(request.form['check_in'], '%Y-%m-%d').date()
@@ -445,30 +413,18 @@ def make_booking(hotel_id):
             """, (new_confirmation_code, check_in, check_out, guest_number, price, 
                  is_past, is_upcoming, uid, hotel_id))
 
-            # Get an available room from the hotel
-            cursor = g.conn.execute("""
-                SELECT room_id 
-                FROM Hotel_Contains_Rooms 
-                WHERE hotel_id = %s AND availability = true 
-                LIMIT 1
-            """, (hotel_id,))
-            room_result = cursor.fetchone()
-            
-            if room_result:
-                room_id = room_result[0]
-                # Link the room to the booking
-                g.conn.execute("""
-                    INSERT INTO Room_Generates_Bookings 
-                    (confirmation_code, room_id, time, hotel_id)
-                    VALUES (%s, %s, CURRENT_DATE, %s)
-                """, (new_confirmation_code, room_id, hotel_id))
+            g.conn.execute("""
+                INSERT INTO Room_Generates_Bookings 
+                (confirmation_code, room_id, time, hotel_id)
+                VALUES (%s, %s, CURRENT_DATE, %s)
+            """, (new_confirmation_code, room_id, hotel_id))
 
-                # Update room availability
-                g.conn.execute("""
-                    UPDATE Hotel_Contains_Rooms 
-                    SET availability = false 
-                    WHERE room_id = %s
-                """, (room_id,))
+            # Update room availability
+            g.conn.execute("""
+                UPDATE Hotel_Contains_Rooms 
+                SET availability = false 
+                WHERE room_id = %s
+            """, (room_id,))
 
             return redirect(url_for('booking_confirmed', confirmation_code=new_confirmation_code))
             
@@ -481,7 +437,7 @@ def make_booking(hotel_id):
     hotel = cursor.fetchone()
     cursor.close()
 
-    return render_template('make_booking.html', hotel=hotel, hotel_id=hotel_id)
+    return render_template('make_booking.html', hotel=hotel, hotel_id=hotel_id, room_id=room_id)
 
 
 @app.route('/booking_confirmed/<int:confirmation_code>')
